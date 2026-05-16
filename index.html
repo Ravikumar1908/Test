@@ -127,13 +127,15 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start; /* Ensure top isn't cut off when scrolling */
+            justify-content: flex-start;
+            /* Ensure top isn't cut off when scrolling */
             padding: 80px 20px;
             opacity: 0;
             pointer-events: none;
             transition: opacity .8s ease;
             overflow-y: auto;
-            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+            -webkit-overflow-scrolling: touch;
+            /* Smooth scrolling on iOS */
         }
 
         .scene.active {
@@ -142,7 +144,7 @@
         }
 
         /* Center content vertically if it's shorter than the screen */
-        .scene > div {
+        .scene>div {
             margin-top: auto;
             margin-bottom: auto;
             z-index: 10;
@@ -1346,8 +1348,7 @@
     <div id="music-bar">
         <button id="music-btn" title="Toggle music">🎵</button>
     </div>
-    <audio id="bg-music" src="https://cdn.pixabay.com/audio/2022/03/10/audio_c36e8b6b1b.mp3" loop
-        preload="auto"></audio>
+    <audio id="bg-music" src="music.mp3" loop preload="auto"></audio>
 
     <!-- Confetti Canvas -->
     <canvas id="confetti-canvas"></canvas>
@@ -1365,7 +1366,7 @@
         <div style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:20px;z-index:10;">
             <div class="body-sm" style="letter-spacing:.2em;text-transform:uppercase;opacity:.4;">A Birthday Story</div>
             <div class="video-wrap" id="s1-video">
-                <img src="start.png" alt="Birthday Start" 
+                <img src="start.png" alt="Birthday Start"
                     style="width:100%; height:100%; object-fit:cover; position:absolute; inset:0;">
             </div>
             <div class="skip-hint">tap anywhere to begin her story →</div>
@@ -1713,7 +1714,7 @@
             <div class="scene-label">Chapter XVII · Just For You</div>
             <div class="display scene-title">A little something.</div>
             <div class="video-wrap-sq" id="s19-video">
-                <img src="last.png" alt="Last Memory" 
+                <img src="last.png" alt="Last Memory"
                     style="width:100%; height:100%; object-fit:cover; position:absolute; inset:0;">
             </div>
             <button class="btn btn-rose" onclick="next()">That's everything →</button>
@@ -1778,9 +1779,9 @@
             current = n;
             updateDots(n);
             initScene(n);
-            
-            // Scroll to top on scene change
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // Scroll the scene itself to the top
+            next.scrollTo({ top: 0, behavior: 'instant' });
         }
         function next() { goTo(current + 1); }
         function restart() { location.reload(); }
