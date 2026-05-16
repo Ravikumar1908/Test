@@ -121,24 +121,36 @@
             transform: scale(1.6);
         }
 
-        /* ===== SCENE BASE ===== */
         .scene {
             position: fixed;
             inset: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start; /* Ensure top isn't cut off when scrolling */
+            padding: 80px 20px;
             opacity: 0;
             pointer-events: none;
             transition: opacity .8s ease;
-            overflow: hidden;
-            padding: 20px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
         }
 
         .scene.active {
             opacity: 1;
             pointer-events: all;
+        }
+
+        /* Center content vertically if it's shorter than the screen */
+        .scene > div {
+            margin-top: auto;
+            margin-bottom: auto;
+            z-index: 10;
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         /* ===== CANVAS LAYER ===== */
@@ -1766,6 +1778,9 @@
             current = n;
             updateDots(n);
             initScene(n);
+            
+            // Scroll to top on scene change
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
         function next() { goTo(current + 1); }
         function restart() { location.reload(); }
