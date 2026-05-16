@@ -1,0 +1,2296 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>Happy 20th, Paru 🎂</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Poppins:wght@300;400;500;600;700&family=Abril+Fatface&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ===== RESET & ROOT ===== */
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --rose: #e8436a;
+            --deep-rose: #b0243d;
+            --gold: #f5c842;
+            --blush: #ffd6e0;
+            --cream: #fff8f0;
+            --dark: #0d0508;
+            --mid: #1a0c10;
+            --purple: #6e2a8a;
+            --soft-purple: #c084fc;
+            --teal: #14b8a6;
+            --ff-display: 'Abril Fatface', serif;
+            --ff-serif: 'Poppins', serif;
+            --ff-body: 'Poppins', sans-serif;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: var(--dark);
+            color: #fff;
+            font-family: var(--ff-body);
+        }
+
+        button {
+            cursor: pointer;
+            border: none;
+            background: none;
+            color: inherit;
+            font-family: inherit;
+        }
+
+        /* ===== MUSIC PLAYER ===== */
+        #music-bar {
+            position: fixed;
+            top: 14px;
+            right: 16px;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #music-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(8px);
+            transition: .3s;
+            font-size: 16px;
+        }
+
+        #music-btn:hover {
+            background: rgba(232, 67, 106, 0.4);
+        }
+
+        #music-label {
+            font-size: 11px;
+            opacity: .5;
+            letter-spacing: .5px;
+        }
+
+        /* Add your audio file here: */
+        /* <audio id="bg-music" src="your-song.mp3" loop></audio> */
+
+        /* ===== PROGRESS DOTS ===== */
+        #progress {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 6px;
+            z-index: 9990;
+        }
+
+        .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            transition: .4s;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .dot.done {
+            background: var(--rose);
+            box-shadow: 0 0 8px var(--rose);
+        }
+
+        .dot.active {
+            background: #fff;
+            transform: scale(1.6);
+        }
+
+        /* ===== SCENE BASE ===== */
+        .scene {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .8s ease;
+            overflow: hidden;
+            padding: 20px;
+        }
+
+        .scene.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        /* ===== CANVAS LAYER ===== */
+        #confetti-canvas {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 8000;
+        }
+
+        /* ===== BALLOONS ===== */
+        .balloon-layer {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 7000;
+            overflow: hidden;
+        }
+
+        .balloon {
+            position: absolute;
+            bottom: -120px;
+            width: 48px;
+            height: 60px;
+            border-radius: 50% 50% 45% 45%;
+            animation: rise linear forwards;
+            cursor: pointer;
+            pointer-events: all;
+        }
+
+        .balloon::after {
+            content: '';
+            position: absolute;
+            bottom: -28px;
+            left: 50%;
+            width: 1px;
+            height: 28px;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateX(-50%);
+        }
+
+        .balloon:hover {
+            filter: brightness(1.3);
+        }
+
+        @keyframes rise {
+            0% {
+                transform: translateX(0) rotate(-3deg);
+            }
+
+            25% {
+                transform: translateX(12px) rotate(3deg);
+            }
+
+            50% {
+                transform: translateX(-8px) rotate(-2deg);
+            }
+
+            75% {
+                transform: translateX(10px) rotate(2deg);
+            }
+
+            100% {
+                bottom: 110%;
+                transform: translateX(0);
+            }
+        }
+
+        /* ===== TRIANGULAR PAPER CONFETTI ===== */
+        .tri {
+            position: fixed;
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-bottom: 12px solid red;
+            pointer-events: none;
+            z-index: 7500;
+            animation: trifall linear forwards;
+        }
+
+        @keyframes trifall {
+            0% {
+                transform: translateY(-20px) rotate(0deg);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(110vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        /* ===== TYPOGRAPHY HELPERS ===== */
+        .giant {
+            font-family: var(--ff-display);
+            font-size: clamp(3rem, 12vw, 9rem);
+            line-height: 1;
+            letter-spacing: -.02em;
+        }
+
+        .display {
+            font-family: var(--ff-serif);
+            font-size: clamp(1.8rem, 5vw, 3.8rem);
+            font-weight: 700;
+            font-style: italic;
+        }
+
+        .body-lg {
+            font-size: clamp(1rem, 2.5vw, 1.5rem);
+            line-height: 1.7;
+            font-weight: 300;
+        }
+
+        .body-sm {
+            font-size: clamp(.85rem, 2vw, 1.1rem);
+            line-height: 1.6;
+            opacity: .75;
+        }
+
+        .gold {
+            color: var(--gold);
+        }
+
+        .rose {
+            color: var(--rose);
+        }
+
+        .blush {
+            color: var(--blush);
+        }
+
+        /* ===== CTA BUTTONS ===== */
+        .btn {
+            padding: 14px 36px;
+            border-radius: 50px;
+            font-family: var(--ff-body);
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            border: 2px solid currentColor;
+            transition: .35s cubic-bezier(.34, 1.56, .64, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-rose {
+            background: var(--rose);
+            border-color: var(--rose);
+            color: #fff;
+        }
+
+        .btn-rose:hover {
+            background: var(--deep-rose);
+            transform: scale(1.05);
+        }
+
+        .btn-outline {
+            border-color: rgba(255, 255, 255, .4);
+            color: #fff;
+        }
+
+        .btn-outline:hover {
+            border-color: #fff;
+            background: rgba(255, 255, 255, .07);
+            transform: scale(1.05);
+        }
+
+        .btn-gold {
+            background: var(--gold);
+            border-color: var(--gold);
+            color: #0d0508;
+        }
+
+        .btn-gold:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 25px var(--gold);
+        }
+
+        /* ===== CARD / GLASS ===== */
+        .glass {
+            background: rgba(255, 255, 255, .05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, .12);
+            border-radius: 24px;
+            padding: 36px;
+        }
+
+        /* ===== SCENE 1 — VIDEO INTRO (16:9) ===== */
+        #s1 {
+            background: #000;
+        }
+
+        #s1 .video-wrap {
+            width: min(90vw, 960px);
+            aspect-ratio: 16/9;
+            background: #111;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 2px solid rgba(255, 255, 255, .1);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #s1 .video-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            color: rgba(255, 255, 255, .3);
+            text-align: center;
+            padding: 20px;
+        }
+
+        #s1 .video-placeholder .icon {
+            font-size: 3rem;
+        }
+
+        #s1 .skip-hint {
+            margin-top: 20px;
+            font-size: .85rem;
+            opacity: .4;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* ===== SCENE 2 — TITLE SPLASH ===== */
+        #s2 {
+            background: radial-gradient(ellipse at 50% 60%, #3a0e20, var(--dark) 70%);
+        }
+
+        #s2 .crown {
+            font-size: clamp(2rem, 6vw, 4rem);
+            animation: crown-bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes crown-bounce {
+
+            0%,
+            100% {
+                transform: translateY(0) rotate(-5deg);
+            }
+
+            50% {
+                transform: translateY(-8px) rotate(5deg);
+            }
+        }
+
+        #s2 .sub {
+            font-family: var(--ff-body);
+            letter-spacing: .5em;
+            font-size: clamp(.7rem, 2vw, 1rem);
+            text-transform: uppercase;
+            opacity: .6;
+            margin-bottom: 16px;
+        }
+
+        #s2 .num {
+            font-family: var(--ff-display);
+            font-size: clamp(6rem, 25vw, 18rem);
+            line-height: .85;
+            background: linear-gradient(135deg, var(--rose), var(--gold), var(--blush));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 0 30px rgba(232, 67, 106, .4));
+        }
+
+        /* ===== SCENE 3 — FLIRTY OPENER ===== */
+        #s3 {
+            background: radial-gradient(ellipse at 30% 70%, #2d0a1c, var(--dark));
+        }
+
+        #s3 .card-stack {
+            position: relative;
+            width: min(90vw, 500px);
+            height: min(70vw, 380px);
+        }
+
+        #s3 .card {
+            position: absolute;
+            inset: 0;
+            border-radius: 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 40px;
+            text-align: center;
+            gap: 16px;
+            opacity: 0;
+            transform: translateY(30px) scale(.95);
+            transition: opacity .5s, transform .5s;
+        }
+
+        #s3 .card.visible {
+            opacity: 1;
+            transform: none;
+        }
+
+        #s3 .card:nth-child(1) {
+            background: linear-gradient(135deg, #3a0e20, #6e2a8a);
+        }
+
+        #s3 .card:nth-child(2) {
+            background: linear-gradient(135deg, #1a0c2e, #2d0a1c);
+        }
+
+        #s3 .card:nth-child(3) {
+            background: linear-gradient(135deg, #0d2b2a, #0d0508);
+        }
+
+        /* ===== SCENE 4 — WHO IS PARU ===== */
+        #s4 {
+            background: var(--dark);
+        }
+
+        #s4 .trait-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            max-width: 700px;
+        }
+
+        .trait-tag {
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: clamp(.75rem, 2vw, 1rem);
+            font-weight: 500;
+            border: 1.5px solid rgba(255, 255, 255, .15);
+            background: rgba(255, 255, 255, .04);
+            opacity: 0;
+            transform: scale(.8);
+            transition: .4s cubic-bezier(.34, 1.56, .64, 1);
+            cursor: default;
+        }
+
+        .trait-tag.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .trait-tag:hover {
+            border-color: var(--rose);
+            background: rgba(232, 67, 106, .1);
+        }
+
+        /* ===== SCENE 5 — MEMORY LANE (choices) ===== */
+        #s5 {
+            background: radial-gradient(ellipse at 70% 30%, #1a1040, var(--dark));
+        }
+
+        #s5 .memory-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+            max-width: 520px;
+            width: 100%;
+        }
+
+        .mem-card {
+            background: rgba(255, 255, 255, .05);
+            border: 1.5px solid rgba(255, 255, 255, .1);
+            border-radius: 18px;
+            padding: 24px 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: .35s cubic-bezier(.34, 1.56, .64, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mem-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, var(--rose), var(--purple));
+            opacity: 0;
+            transition: .35s;
+        }
+
+        .mem-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .mem-card:hover::before {
+            opacity: .15;
+        }
+
+        .mem-card.chosen {
+            border-color: var(--rose);
+            box-shadow: 0 0 20px rgba(232, 67, 106, .3);
+        }
+
+        .mem-card.chosen::before {
+            opacity: .2;
+        }
+
+        .mem-card .em {
+            font-size: 2rem;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .mem-card .lbl {
+            font-size: .9rem;
+            font-weight: 500;
+        }
+
+        /* ===== SCENE 6 — REVEAL ===== */
+        #s6 {
+            background: radial-gradient(ellipse at 50% 50%, #200a30, var(--dark));
+        }
+
+        #s6 .reveal-text {
+            font-family: var(--ff-serif);
+            font-size: clamp(1.4rem, 4vw, 2.6rem);
+            font-style: italic;
+            text-align: center;
+            max-width: 640px;
+            line-height: 1.6;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 1s, transform 1s;
+        }
+
+        #s6 .reveal-text.show {
+            opacity: 1;
+            transform: none;
+        }
+
+        /* ===== SCENE 7 — THINGS SHE DOES ===== */
+        #s7 {
+            background: var(--dark);
+        }
+
+        #s7 .scroll-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            max-width: 640px;
+            width: 100%;
+        }
+
+        .thing-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 16px 20px;
+            background: rgba(255, 255, 255, .04);
+            border: 1px solid rgba(255, 255, 255, .08);
+            border-radius: 14px;
+            opacity: 0;
+            transform: translateX(-20px);
+            transition: .5s ease;
+        }
+
+        .thing-item.show {
+            opacity: 1;
+            transform: none;
+        }
+
+        .thing-item .ti-icon {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .thing-item .ti-text {
+            font-size: clamp(.85rem, 2vw, 1rem);
+            opacity: .85;
+        }
+
+        /* ===== SCENE 8 — MYSTERY BOX ===== */
+        #s8 {
+            background: radial-gradient(ellipse at 40% 60%, #1a0020, var(--dark));
+        }
+
+        #s8 .mystery-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            max-width: 580px;
+            width: 100%;
+        }
+
+        @media(max-width:480px) {
+            #s8 .mystery-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .mystery-box {
+            aspect-ratio: 1;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, .04);
+            border: 2px solid rgba(255, 255, 255, .12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            cursor: pointer;
+            transition: .4s cubic-bezier(.34, 1.56, .64, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mystery-box::after {
+            content: attr(data-secret);
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .7rem;
+            font-family: var(--ff-serif);
+            font-style: italic;
+            background: var(--rose);
+            color: #fff;
+            opacity: 0;
+            transition: .4s;
+            padding: 8px;
+            text-align: center;
+        }
+
+        .mystery-box.opened {
+            border-color: var(--rose);
+            transform: scale(1.08) rotate(-2deg);
+        }
+
+        .mystery-box.opened::after {
+            opacity: 1;
+        }
+
+        /* ===== SCENE 9 — THE WISH LIST ===== */
+        #s9 {
+            background: radial-gradient(ellipse at 60% 40%, #0a2020, var(--dark));
+        }
+
+        #s9 .wish-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 65vh;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+
+        #s9 .wish-list::-webkit-scrollbar {
+            width: 3px;
+        }
+
+        #s9 .wish-list::-webkit-scrollbar-thumb {
+            background: var(--rose);
+            border-radius: 3px;
+        }
+
+        .wish-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 14px 18px;
+            background: rgba(255, 255, 255, .04);
+            border-left: 3px solid var(--rose);
+            border-radius: 0 12px 12px 0;
+            opacity: 0;
+            transform: translateX(-16px);
+            transition: .5s ease;
+        }
+
+        .wish-item.show {
+            opacity: 1;
+            transform: none;
+        }
+
+        .wish-num2 {
+            font-family: var(--ff-display);
+            font-size: 1.4rem;
+            color: var(--rose);
+            flex-shrink: 0;
+            line-height: 1;
+        }
+
+        .wish-text2 {
+            font-size: clamp(.82rem, 2vw, .98rem);
+            line-height: 1.6;
+            font-style: italic;
+        }
+
+        /* ===== SCENE 10 — COMPLIMENT SPINNER ===== */
+        #s10 {
+            background: radial-gradient(ellipse at 50% 50%, #200010, var(--dark));
+        }
+
+        #s10 .spinner-wrap {
+            position: relative;
+            width: min(80vw, 320px);
+            height: min(80vw, 320px);
+        }
+
+        #s10 .spin-ring {
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            border-top-color: var(--rose);
+            border-right-color: var(--gold);
+            animation: spin 3s linear infinite;
+        }
+
+        #s10 .spin-center {
+            position: absolute;
+            inset: 20px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, .04);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, .1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 24px;
+            cursor: pointer;
+            transition: .3s;
+        }
+
+        #s10 .spin-center:hover {
+            background: rgba(232, 67, 106, .08);
+        }
+
+        #s10 .spin-label {
+            font-size: .72rem;
+            text-transform: uppercase;
+            letter-spacing: .2em;
+            opacity: .4;
+            margin-bottom: 8px;
+        }
+
+        #s10 .spin-word {
+            font-family: var(--ff-serif);
+            font-size: clamp(1.1rem, 3vw, 1.8rem);
+            font-style: italic;
+            color: var(--blush);
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ===== SCENE 11 — LOVE LETTER ===== */
+        #s11 {
+            background: radial-gradient(ellipse at 30% 70%, #1a0a0a, var(--dark));
+        }
+
+        #s11 .letter {
+            max-width: 560px;
+            width: 100%;
+            background: rgba(255, 248, 240, .04);
+            border: 1px solid rgba(245, 200, 66, .2);
+            border-radius: 20px;
+            padding: clamp(24px, 5vw, 44px);
+            font-family: var(--ff-serif);
+            font-size: clamp(1rem, 2.5vw, 1.25rem);
+            font-style: italic;
+            line-height: 1.8;
+            color: var(--cream);
+            opacity: 0;
+            transform: scale(.95);
+            transition: opacity 1s, transform 1s;
+            text-align: left;
+        }
+
+        #s11 .letter.show {
+            opacity: 1;
+            transform: none;
+        }
+
+        #s11 .letter .sig {
+            margin-top: 24px;
+            color: var(--gold);
+            font-size: 1.1rem;
+            text-align: right;
+        }
+
+        /* ===== SCENE 12 — THINGS I LOVE ===== */
+        #s12 {
+            background: var(--dark);
+        }
+
+        #s12 .love-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+            max-width: 580px;
+            width: 100%;
+        }
+
+        .love-item {
+            background: rgba(255, 255, 255, .04);
+            border-radius: 18px;
+            padding: 20px;
+            border: 1.5px solid rgba(255, 255, 255, .07);
+            opacity: 0;
+            transition: .5s;
+            cursor: default;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .love-item.show {
+            opacity: 1;
+        }
+
+        .love-item:hover {
+            border-color: rgba(232, 67, 106, .4);
+            background: rgba(232, 67, 106, .05);
+        }
+
+        .love-item .li-icon {
+            font-size: 1.8rem;
+        }
+
+        .love-item .li-title {
+            font-family: var(--ff-serif);
+            font-style: italic;
+            font-size: 1.1rem;
+        }
+
+        .love-item .li-desc {
+            font-size: .82rem;
+            opacity: .6;
+        }
+
+        /* ===== SCENE 13 — PICK YOUR VIBE ===== */
+        #s13 {
+            background: radial-gradient(ellipse at 50% 50%, #0a0a20, var(--dark));
+        }
+
+        #s13 .vibe-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            max-width: 600px;
+        }
+
+        .vibe-btn {
+            padding: 12px 24px;
+            border-radius: 50px;
+            background: rgba(255, 255, 255, .06);
+            border: 1.5px solid rgba(255, 255, 255, .15);
+            font-family: var(--ff-body);
+            font-size: clamp(.8rem, 2vw, .95rem);
+            font-weight: 500;
+            cursor: pointer;
+            transition: .35s;
+        }
+
+        .vibe-btn:hover,
+        .vibe-btn.picked {
+            border-color: var(--rose);
+            background: rgba(232, 67, 106, .15);
+            color: var(--blush);
+        }
+
+        #s13 .vibe-result {
+            margin-top: 20px;
+            max-width: 480px;
+            font-family: var(--ff-serif);
+            font-style: italic;
+            font-size: clamp(1rem, 3vw, 1.4rem);
+            text-align: center;
+            color: var(--blush);
+            min-height: 80px;
+            line-height: 1.6;
+            opacity: 0;
+            transition: .5s;
+        }
+
+        #s13 .vibe-result.show {
+            opacity: 1;
+        }
+
+        /* ===== SCENE 14 — CANDLE CEREMONY ===== */
+        #s14 {
+            background: radial-gradient(ellipse at 50% 70%, #2a0a14, var(--dark));
+        }
+
+        #s14 .cake-wrap {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0;
+        }
+
+        .cake-tier {
+            border-radius: 50% / 20%;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, .5);
+            position: relative;
+        }
+
+        .tier-b {
+            width: clamp(180px, 55vw, 260px);
+            height: clamp(60px, 15vw, 85px);
+            background: linear-gradient(180deg, #6e2a8a, #3a0e20);
+            margin: 0;
+        }
+
+        .tier-m {
+            width: clamp(130px, 40vw, 190px);
+            height: clamp(50px, 12vw, 70px);
+            background: linear-gradient(180deg, #8b3a9e, #4b0082);
+            margin-bottom: 0;
+        }
+
+        .tier-t {
+            width: clamp(80px, 25vw, 120px);
+            height: clamp(40px, 10vw, 55px);
+            background: linear-gradient(180deg, #a64cc0, #6e2a8a);
+            margin-bottom: 0;
+        }
+
+        .icing-top {
+            position: absolute;
+            top: -6px;
+            left: 0;
+            right: 0;
+            height: 16px;
+            background: var(--blush);
+            border-radius: 50% 50% 0 0/100% 100% 0 0;
+        }
+
+        .candle-row {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translate(-50%, -100%);
+        }
+
+        .candle {
+            width: 8px;
+            height: 30px;
+            background: linear-gradient(180deg, var(--blush), var(--cream));
+            border-radius: 3px;
+            position: relative;
+            transform-origin: bottom;
+        }
+
+        .flame {
+            position: absolute;
+            top: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 10px;
+            height: 18px;
+            background: radial-gradient(ellipse at 50% 100%, #fff, var(--gold) 40%, #ff4500 80%, transparent);
+            border-radius: 50% 50% 20% 20%;
+            opacity: 0;
+            filter: blur(.5px);
+            box-shadow: 0 0 12px var(--gold), 0 0 6px #ff4500;
+            animation: flicker .12s ease-in-out infinite alternate;
+        }
+
+        .flame.lit {
+            opacity: 1;
+        }
+
+        @keyframes flicker {
+            to {
+                transform: translateX(-52%) scaleX(1.1) scaleY(1.05);
+            }
+        }
+
+        #s14 .light-btn {
+            margin-top: 28px;
+        }
+
+        /* ===== SCENE 15 — 20 REASONS ===== */
+        #s15 {
+            background: radial-gradient(ellipse at 60% 40%, #0a1a2a, var(--dark));
+        }
+
+        #s15 .reasons-wrap {
+            max-width: 640px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 65vh;
+            overflow-y: auto;
+            padding-right: 6px;
+        }
+
+        #s15 .reasons-wrap::-webkit-scrollbar {
+            width: 3px;
+        }
+
+        #s15 .reasons-wrap::-webkit-scrollbar-thumb {
+            background: var(--gold);
+            border-radius: 3px;
+        }
+
+        .reason-item {
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+            padding: 14px 18px;
+            background: rgba(255, 255, 255, .03);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, .06);
+            opacity: 0;
+            transform: translateX(-16px);
+            transition: .5s;
+        }
+
+        .reason-item.show {
+            opacity: 1;
+            transform: none;
+        }
+
+        .reason-num {
+            font-family: var(--ff-display);
+            color: var(--gold);
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .reason-txt {
+            font-size: clamp(.82rem, 2vw, .95rem);
+            line-height: 1.6;
+            opacity: .85;
+        }
+
+        /* ===== SCENE 16 — PHOTO WALL (placeholder) ===== */
+        #s16 {
+            background: var(--dark);
+        }
+
+        #s16 .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            max-width: 580px;
+            width: 100%;
+        }
+
+        .photo-slot {
+            aspect-ratio: 1;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, .04);
+            border: 1px dashed rgba(255, 255, 255, .15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 6px;
+            font-size: .72rem;
+            opacity: .4;
+            transition: .3s;
+        }
+
+        .photo-slot:hover {
+            opacity: .7;
+            border-color: var(--rose);
+        }
+
+        .photo-slot .ph-icon {
+            font-size: 1.8rem;
+        }
+
+        /* ===== SCENE 17 — TIMELINE ===== */
+        #s17 {
+            background: radial-gradient(ellipse at 30% 60%, #10100a, var(--dark));
+        }
+
+        #s17 .timeline {
+            max-width: 600px;
+            width: 100%;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        #s17 .timeline::before {
+            content: '';
+            position: absolute;
+            left: 28px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(180deg, var(--rose), var(--gold));
+            opacity: .3;
+        }
+
+        .tl-item {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+            padding: 12px 0;
+            opacity: 0;
+            transform: translateX(-16px);
+            transition: .5s;
+        }
+
+        .tl-item.show {
+            opacity: 1;
+            transform: none;
+        }
+
+        .tl-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--rose);
+            flex-shrink: 0;
+            margin-top: 2px;
+            box-shadow: 0 0 10px rgba(232, 67, 106, .5);
+            position: relative;
+            z-index: 1;
+        }
+
+        .tl-content .tl-year {
+            font-size: .75rem;
+            color: var(--gold);
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            margin-bottom: 3px;
+        }
+
+        .tl-content .tl-text {
+            font-family: var(--ff-serif);
+            font-style: italic;
+            font-size: clamp(.85rem, 2vw, 1rem);
+        }
+
+        /* ===== SCENE 18 — FINAL FLIRT ===== */
+        #s18 {
+            background: radial-gradient(ellipse at 50% 50%, #1a0010, var(--dark));
+        }
+
+        #s18 .flirt-box {
+            max-width: 520px;
+            width: 100%;
+            padding: clamp(28px, 5vw, 50px);
+            border-radius: 28px;
+            text-align: center;
+            background: rgba(255, 255, 255, .04);
+            border: 1.5px solid rgba(232, 67, 106, .3);
+            box-shadow: 0 0 60px rgba(232, 67, 106, .08);
+        }
+
+        #s18 .flirt-em {
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 16px;
+            animation: pulse-em 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-em {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
+        /* ===== SCENE 19 — VIDEO SLOT (1:1) ===== */
+        #s19 {
+            background: #000;
+        }
+
+        #s19 .video-wrap-sq {
+            width: min(75vw, 420px);
+            aspect-ratio: 1/1;
+            background: #111;
+            border-radius: 24px;
+            overflow: hidden;
+            border: 2px solid rgba(255, 255, 255, .1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        #s19 .video-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            color: rgba(255, 255, 255, .3);
+            text-align: center;
+            padding: 20px;
+        }
+
+        /* ===== SCENE 20 — FINALE ===== */
+        #s20 {
+            background: radial-gradient(ellipse at 50% 50%, #3a0e20, var(--dark));
+        }
+
+        #s20 .finale-crown {
+            font-size: clamp(2.5rem, 8vw, 5rem);
+            animation: crown-bounce 1.5s ease-in-out infinite;
+        }
+
+        #s20 .finale-name {
+            font-family: var(--ff-display);
+            font-size: clamp(3.5rem, 13vw, 9rem);
+            background: linear-gradient(135deg, var(--rose), var(--gold), var(--blush));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 0 30px rgba(232, 67, 106, .5));
+            line-height: .9;
+        }
+
+        #s20 .finale-sub {
+            font-family: var(--ff-serif);
+            font-style: italic;
+            font-size: clamp(1.2rem, 3.5vw, 2rem);
+            opacity: .8;
+            margin-top: 8px;
+        }
+
+        #s20 .finale-note {
+            max-width: 440px;
+            text-align: center;
+            font-size: clamp(.85rem, 2vw, 1rem);
+            opacity: .6;
+            line-height: 1.7;
+            margin-top: 16px;
+        }
+
+        /* ===== SCENE HEADINGS ===== */
+        .scene-label {
+            font-size: .72rem;
+            text-transform: uppercase;
+            letter-spacing: .25em;
+            opacity: .35;
+            margin-bottom: 20px;
+        }
+
+        .scene-title {
+            margin-bottom: 24px;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media(max-width:640px) {
+            .glass {
+                padding: 24px;
+            }
+
+            #s8 .mystery-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            #s12 .love-grid {
+                grid-template-columns: 1fr;
+            }
+
+            #s16 .photo-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .btn {
+                padding: 12px 26px;
+                font-size: .9rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Music Bar -->
+    <div id="music-bar">
+        <button id="music-btn" title="Toggle music">🎵</button>
+    </div>
+    <audio id="bg-music" src="https://cdn.pixabay.com/audio/2022/03/10/audio_c36e8b6b1b.mp3" loop
+        preload="auto"></audio>
+
+    <!-- Confetti Canvas -->
+    <canvas id="confetti-canvas"></canvas>
+
+    <!-- Balloon Layer -->
+    <div class="balloon-layer" id="balloon-layer"></div>
+
+    <!-- Progress Dots -->
+    <div id="progress" id="progress-dots"></div>
+
+    <!-- ============================================================ -->
+    <!-- SCENE 1 — 16:9 Intro Video -->
+    <!-- ============================================================ -->
+    <section class="scene" id="s1">
+        <div style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:20px;z-index:10;">
+            <div class="body-sm" style="letter-spacing:.2em;text-transform:uppercase;opacity:.4;">A Birthday Story</div>
+            <div class="video-wrap" id="s1-video">
+                <img src="start.png" alt="Birthday Start" 
+                    style="width:100%; height:100%; object-fit:cover; position:absolute; inset:0;">
+            </div>
+            <div class="skip-hint">tap anywhere to begin her story →</div>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SCENE 2 — Title Splash: 20 -->
+    <!-- ============================================================ -->
+    <section class="scene" id="s2">
+        <div style="text-align:center;display:flex;flex-direction:column;align-items:center;z-index:10;">
+            <div class="crown">👑</div>
+            <div class="sub">She's finally</div>
+            <div class="num">20</div>
+            <div
+                style="font-family:var(--ff-serif);font-style:italic;font-size:clamp(1rem,3vw,1.6rem);opacity:.7;margin-top:12px;">
+                and honestly? took long enough.</div>
+            <button class="btn btn-rose" style="margin-top:32px;" onclick="next()">Let's Celebrate →</button>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SCENE 3 — Flirty Opener Cards -->
+    <!-- ============================================================ -->
+    <section class="scene" id="s3">
+        <div
+            style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:24px;z-index:10;max-width:580px;width:100%;">
+            <div class="scene-label">Chapter I</div>
+            <div class="display scene-title">The one who showed up<br>and ruined my peace.</div>
+            <div class="glass"
+                style="text-align:left;font-family:var(--ff-serif);font-style:italic;font-size:clamp(1rem,2.5vw,1.2rem);line-height:1.8;max-width:480px;">
+                "You appeared on a screen one day,<br>
+                laggy video call, bad lighting,<br>
+                and somehow that was enough<br>
+                to completely ruin my peace.<br><br>
+                ...that's still your fault, Paru."
+            </div>
+            <button class="btn btn-outline" onclick="next()">I like this. Keep going →</button>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SCENE 4 — Who Is Paru? Trait Tags -->
+    <!-- ============================================================ -->
+    <section class="scene" id="s4">
+        <div
+            style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:24px;z-index:10;max-width:700px;width:100%;">
+            <div class="scene-label">Chapter II</div>
+            <div class="display scene-title">So. <em>Who</em> is Paru?</div>
+            <div class="trait-container" id="trait-container">
+                <!-- injected by JS -->
+            </div>
+            <div id="s4-next" style="opacity:0;transition:.5s;margin-top:8px;">
+                <button class="btn btn-rose" onclick="next()">That's absolutely me →</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SCENE 5 — Memory Lane Choices -->
+    <!-- ============================================================ -->
+    <section class="scene" id="s5">
+        <div
+            style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:24px;z-index:10;max-width:560px;width:100%;">
+            <div class="scene-label">Chapter III</div>
+            <div class="display scene-title">Pick a feeling.</div>
+            <div class="body-sm" style="margin-top:-16px;">What's her energy today?</div>
+            <div class="memory-grid" id="memory-grid">
+                <div class="mem-card" data-pick="bgmi">
+                    <span class="em">🎮</span><span class="lbl">BGMI Hinata mode</span>
+                </div>
+                <div class="mem-card" data-pick="call">
+                    <span class="em">📞</span><span class="lbl">3am video call</span>
+                </div>
+                <div class="mem-card" data-pick="fight">
+                    <span class="em">🌧️</span><span class="lbl">The hard days</span>
+                </div>
+                <div class="mem-card" data-pick="soft">
+                    <span class="em">🌸</span><span class="lbl">The soft quiet moments</span>
+                </div>
+            </div>
+            <div id="s5-response"
+                style="font-family:var(--ff-serif);font-style:italic;font-size:1.1rem;color:var(--blush);min-height:40px;opacity:0;transition:.5s;">
+            </div>
+            <div id="s5-next" style="opacity:0;transition:.5s;">
+                <button class="btn btn-rose" onclick="next()">Yes, that's the one →</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SCENE 6 — Reveal Lines -->
+    <!-- ============================================================ -->
+    <section class="scene" id="s6">
+        <div
+            style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:28px;z-index:10;max-width:700px;width:100%;">
+            <div class="scene-label">Chapter IV</div>
+            <div class="display scene-title">What 20 looks like on her.</div>
+            <div id="reveal-lines" style="display:flex;flex-direction:column;gap:18px;"></div>
+            <div id="s6-next" style="opacity:0;transition:.5s;margin-top:8px;">
+                <button class="btn btn-gold" style="color:#000;" onclick="next()">This is too real →</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SCENE 7 — Things She Does -->
+    <!-- ============================================================ -->
+    <section class="scene" id="s7">
+        <div
+            style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:20px;z-index:10;max-width:640px;width:100%;">
+            <div class="scene-label">Chapter V</div>
+            <div class="display scene-title">A completely unbiased list.</div>
+            <div class="scroll-list" id="things-list"></div>
+            <div id="s7-next" style="opacity:0;transition:.5s;margin-top:4px;">
+                <button class="btn btn-rose" onclick="next()">...okay fair →</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SCENE 8 — Mystery Boxes -->
+    <!-- ============================================================ -->
+    <section class="scene" id="s8">
+        <div
+            style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:24px;z-index:10;max-width:600px;width:100%;">
+            <div class="scene-label">Chapter VI</div>
+            <div class="display scene-title">Open all 8 boxes.</div>
+            <div class="body-sm" style="margin-top:-16px;">Each one has something meant for you.</div>
+            <div class="mystery-grid" id="mystery-grid"></div>
+            <div id="s8-next" style="opacity:0;transition:.5s;margin-top:8px;">
+                <button class="btn btn-outline" onclick="next()">I'm flustered. Next. →</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SCENE 9 — 20 Wishes -->
+    <!-- ============================================================ -->
+    <section class="scene" id="s9">
+        <div
+            style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:20px;z-index:10;max-width:640px;width:100%;height:100%;">
+            <div class="scene-label">Chapter VII</div>
+            <div class="display scene-title" style="flex-shrink:0;">20 wishes for 20 years.</div>
+            <div class="wish-list" id="wish-list"></div>
+            <div id="s9-next" style="opacity:0;transition:.5s;flex-shrink:0;padding-bottom:8px;">
+                <button class="btn btn-rose" onclick="next()">I'm not crying you are →</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SCENE 10 — Compliment Spinner -->
+    <!-- ============================================================ -->
+    <section class="scene" id="s10">
+        <div style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:28px;z-index:10;">
+            <div class="scene-label">Chapter VIII</div>
+            <div class="display scene-title">Tap. Get a compliment.</div>
+            <div class="body-sm" style="margin-top:-18px;">Yes, every single one is true.</div>
+            <div class="spinner-wrap">
+                <div class="spin-ring"></div>
+                <div class="spin-center" id="spin-center" onclick="spinCompliment()">
+                    <div class="spin-label">Tap me</div>
+                    <div class="spin-word" id="spin-word">✨</div>
+                </div>
+            </div>
+            <div id="spin-count" style="font-size:.8rem;opacity:.4;"></div>
+            <div id="s10-next" style="opacity:0;transition:.5s;">
+                <button class="btn btn-rose" onclick="next()">Okay I believe you →</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SCENE 11 — Love Letter -->
+    <!-- ============================================================ -->
+    <section class="scene" id="s11">
+        <div
+            style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:20px;z-index:10;max-width:600px;width:100%;">
+            <div class="scene-label">Chapter IX · A Letter</div>
+            <div class="letter" id="love-letter">
+                Paru,<br><br>
+                We've never been in the same room.<br>
+                And somehow you've taken up<br>
+                more space in my life than most people<br>
+                who have.<br><br>
+                Two years of calls that ran too long,<br>
+                games we shouldn't have started at midnight,<br>
+                fights that scared me a little,<br>
+                and quiet moments that I keep going back to.<br><br>
+                Distance is inconvenient.<br>
+                You are not.<br><br>
+                You are, in fact, my favourite thing<br>
+                that ever showed up on a screen.<br>
+                <div class="sig">— Itachi 🌹</div>
+            </div>
+            <button class="btn btn-rose" onclick="next()">Read it three more times →</button>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SCENE 12 — Things I Love About You -->
+    <!-- ============================================================ -->
+    <section class="scene" id="s12">
+        <div
+            style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:24px;z-index:10;max-width:600px;width:100%;">
+            <div class="scene-label">Chapter X</div>
+            <div class="display scene-title">Things I love about you.</div>
+            <div class="love-grid" id="love-grid"></div>
+            <div id="s12-next" style="opacity:0;transition:.5s;">
+                <button class="btn btn-outline" onclick="next()">Stop, you're embarrassing me →</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SCENE 13 — Pick Your Vibe Response -->
+    <!-- ============================================================ -->
+    <section class="scene" id="s13">
+        <div
+            style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:24px;z-index:10;max-width:640px;width:100%;">
+            <div class="scene-label">Chapter XI · A Game</div>
+            <div class="display scene-title">Choose your birthday mood.</div>
+            <div class="vibe-grid" id="vibe-grid"></div>
+            <div class="vibe-result" id="vibe-result"></div>
+            <div id="s13-next" style="opacity:0;transition:.5s;">
+                <button class="btn btn-rose" onclick="next()">Accurate. Moving on. →</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SCENE 14 — Candle Ceremony -->
+    <!-- ============================================================ -->
+    <section class="scene" id="s14">
+        <div style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px;z-index:10;">
+            <div class="scene-label">Chapter XII · The Ceremony</div>
+            <div class="display scene-title" style="margin-bottom:0;">Light the candles.</div>
+            <div class="body-sm" style="margin-bottom:20px;">One for every year of your beautiful chaos.</div>
+            <div class="cake-wrap">
+                <div style="position:relative;display:flex;flex-direction:column;align-items:center;">
+                    <div class="candle-row" id="candle-row"><!-- injected --></div>
+                    <div class="cake-tier tier-t">
+                        <div class="icing-top"></div>
+                    </div>
+                    <div class="cake-tier tier-m">
+                        <div class="icing-top"></div>
+                    </div>
+                    <div class="cake-tier tier-b">
+                        <div class="icing-top"></div>
+                    </div>
+                </div>
+            </div>
+            <button class="btn btn-rose light-btn" id="light-btn" onclick="lightCandles()">Light the Candles
+                🕯️</button>
+            <div id="cake-msg"
+                style="font-family:var(--ff-serif);font-style:italic;font-size:1.3rem;color:var(--blush);min-height:40px;opacity:0;transition:.8s;margin-top:10px;">
+            </div>
+            <div id="s14-next" style="opacity:0;transition:.5s;margin-top:8px;">
+                <button class="btn btn-outline" onclick="next()">Make a wish →</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SCENE 15 — 20 Reasons -->
+    <!-- ============================================================ -->
+    <section class="scene" id="s15">
+        <div
+            style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:20px;z-index:10;max-width:660px;width:100%;height:100%;">
+            <div class="scene-label">Chapter XIII</div>
+            <div class="display scene-title" style="flex-shrink:0;">20 reasons you're unforgettable.</div>
+            <div class="reasons-wrap" id="reasons-wrap"></div>
+            <div id="s15-next" style="opacity:0;transition:.5s;flex-shrink:0;padding-bottom:8px;">
+                <button class="btn btn-gold" style="color:#000;" onclick="next()">I feel so seen →</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SCENE 16 — Photo Wall (Placeholder) -->
+    <!-- ============================================================ -->
+    <section class="scene" id="s16">
+        <div
+            style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:24px;z-index:10;max-width:600px;width:100%;">
+            <div class="scene-label">Chapter XIV · Memories</div>
+            <div class="display scene-title">Pick a memory to unlock.</div>
+            <div class="body-sm" style="margin-top:-18px;">Distance is just a number. These are real.</div>
+            <div class="photo-grid" id="memory-unlock-grid">
+                <!-- injected by JS -->
+            </div>
+            <div id="s16-next" style="opacity:0;transition:.5s;">
+                <button class="btn btn-rose" onclick="next()">The best moments →</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SCENE 17 — Timeline -->
+    <!-- ============================================================ -->
+    <section class="scene" id="s17">
+        <div
+            style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:20px;z-index:10;max-width:640px;width:100%;height:100%;">
+            <div class="scene-label">Chapter XV · The Journey</div>
+            <div class="display scene-title" style="flex-shrink:0;">20 years, beautifully spent.</div>
+            <div class="timeline" id="timeline"></div>
+            <div id="s17-next" style="opacity:0;transition:.5s;flex-shrink:0;padding-bottom:8px;">
+                <button class="btn btn-outline" onclick="next()">Now we're here →</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SCENE 18 — Final Flirt -->
+    <!-- ============================================================ -->
+    <section class="scene" id="s18">
+        <div
+            style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:24px;z-index:10;max-width:580px;width:100%;">
+            <div class="scene-label">Chapter XVI · The Truth</div>
+            <div class="flirt-box">
+                <span class="flirt-em">💘</span>
+                <div class="display" style="font-size:clamp(1.3rem,4vw,2rem);margin-bottom:16px;">Look. I'll be honest.
+                </div>
+                <div
+                    style="font-family:var(--ff-serif);font-style:italic;font-size:clamp(.95rem,2.5vw,1.2rem);line-height:1.8;opacity:.85;">
+                    I've never had to be in the same city as you<br>
+                    to know exactly who you are.<br><br>
+                    I've seen you win impossible rounds,<br>
+                    stay on call past sense,<br>
+                    be stubborn and soft in the same breath.<br><br>
+                    Two years of a screen between us.<br>
+                    And you're still the clearest thing in it.<br><br>
+                    <span style="color:var(--rose);">Annoyingly, impossibly, my favourite person.</span>
+                </div>
+            </div>
+            <button class="btn btn-rose" onclick="next()">Annoyingly? Rude. Next. →</button>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SCENE 19 — 1:1 Square Video -->
+    <!-- ============================================================ -->
+    <section class="scene" id="s19">
+        <div style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:20px;z-index:10;">
+            <div class="scene-label">Chapter XVII · Just For You</div>
+            <div class="display scene-title">A little something.</div>
+            <div class="video-wrap-sq" id="s19-video">
+                <img src="last.png" alt="Last Memory" 
+                    style="width:100%; height:100%; object-fit:cover; position:absolute; inset:0;">
+            </div>
+            <button class="btn btn-rose" onclick="next()">That's everything →</button>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SCENE 20 — Grand Finale -->
+    <!-- ============================================================ -->
+    <section class="scene" id="s20">
+        <div
+            style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:16px;z-index:10;padding:20px;">
+            <div class="finale-crown" id="finale-crown">🎂</div>
+            <div class="finale-name" id="finale-name">PARU</div>
+            <div class="finale-sub">turns <span style="color:var(--gold);">twenty</span> today.</div>
+            <div class="finale-note">
+                Twenty years of being impossibly you.<br>
+                May this year be as radiant, dramatic,<br>
+                and unforgettable as you are.<br>
+                <span style="color:var(--rose);display:block;margin-top:8px;">Happy Birthday, love. 🌹</span>
+            </div>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:16px;">
+                <button class="btn btn-rose" onclick="launchFireworks()">🎆 Fireworks!</button>
+                <button class="btn btn-outline" onclick="restart()">↺ From the start</button>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // ============================================================
+        // CORE STATE
+        // ============================================================
+        let current = 1;
+        const TOTAL = 20;
+        let spinCount = 0;
+        let mysteryOpened = 0;
+        let candlesLit = false;
+
+        // ============================================================
+        // PROGRESS DOTS
+        // ============================================================
+        const progEl = document.getElementById('progress');
+        for (let i = 1; i <= TOTAL; i++) {
+            const d = document.createElement('div'); d.className = 'dot'; d.id = 'dot-' + i;
+            progEl.appendChild(d);
+        }
+        function updateDots(n) {
+            for (let i = 1; i <= TOTAL; i++) {
+                const d = document.getElementById('dot-' + i);
+                d.className = 'dot' + (i < n ? ' done' : i === n ? ' active' : '');
+            }
+        }
+
+        // ============================================================
+        // SCENE NAVIGATION
+        // ============================================================
+        function goTo(n) {
+            const prev = document.getElementById('s' + current);
+            const next = document.getElementById('s' + n);
+            if (prev) { prev.classList.remove('active'); }
+            next.classList.add('active');
+            current = n;
+            updateDots(n);
+            initScene(n);
+        }
+        function next() { goTo(current + 1); }
+        function restart() { location.reload(); }
+
+        // Click scene-1 to advance
+        document.getElementById('s1').addEventListener('click', () => {
+            if (current === 1) next();
+        });
+
+        // ============================================================
+        // CONFETTI ENGINE
+        // ============================================================
+        const cCanvas = document.getElementById('confetti-canvas');
+        const cCtx = cCanvas.getContext('2d');
+        cCanvas.width = window.innerWidth; cCanvas.height = window.innerHeight;
+        window.addEventListener('resize', () => { cCanvas.width = window.innerWidth; cCanvas.height = window.innerHeight; });
+
+        const confettiColors = ['#e8436a', '#f5c842', '#ffd6e0', '#c084fc', '#14b8a6', '#fff'];
+        let confettiPieces = [];
+
+        function spawnConfetti(n = 60) {
+            for (let i = 0; i < n; i++) {
+                confettiPieces.push({
+                    x: Math.random() * cCanvas.width,
+                    y: -10 - Math.random() * 200,
+                    vx: (Math.random() - .5) * 4,
+                    vy: 2 + Math.random() * 3,
+                    rot: Math.random() * 360,
+                    rspd: (Math.random() - .5) * 8,
+                    w: 8 + Math.random() * 6,
+                    h: 4 + Math.random() * 4,
+                    color: confettiColors[Math.floor(Math.random() * confettiColors.length)],
+                    alpha: 1, tri: Math.random() > .5
+                });
+            }
+        }
+
+        function drawConfetti() {
+            cCtx.clearRect(0, 0, cCanvas.width, cCanvas.height);
+            confettiPieces = confettiPieces.filter(p => p.alpha > 0);
+            confettiPieces.forEach(p => {
+                p.x += p.vx; p.y += p.vy; p.rot += p.rspd;
+                if (p.y > cCanvas.height + 20) p.alpha = 0;
+                cCtx.save(); cCtx.globalAlpha = p.alpha;
+                cCtx.translate(p.x, p.y); cCtx.rotate(p.rot * Math.PI / 180);
+                cCtx.fillStyle = p.color;
+                if (p.tri) {
+                    cCtx.beginPath(); cCtx.moveTo(0, -p.h); cCtx.lineTo(p.w / 2, p.h / 2); cCtx.lineTo(-p.w / 2, p.h / 2); cCtx.closePath(); cCtx.fill();
+                } else {
+                    cCtx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+                }
+                cCtx.restore();
+            });
+            requestAnimationFrame(drawConfetti);
+        }
+        drawConfetti();
+
+        // ============================================================
+        // BALLOONS
+        // ============================================================
+        const balloonColors = ['#e8436a', '#f5c842', '#ffd6e0', '#c084fc', '#14b8a6', '#a8ff78', '#ff6b6b'];
+        function spawnBalloon() {
+            const bl = document.getElementById('balloon-layer');
+            const b = document.createElement('div');
+            b.className = 'balloon';
+            const c = balloonColors[Math.floor(Math.random() * balloonColors.length)];
+            b.style.background = `radial-gradient(circle at 35% 35%,rgba(255,255,255,.4),${c} 60%)`;
+            b.style.boxShadow = `0 0 15px ${c}55`;
+            b.style.left = Math.random() * 90 + 'vw';
+            const dur = 6 + Math.random() * 6;
+            b.style.animation = `rise ${dur}s linear forwards`;
+            bl.appendChild(b);
+            b.addEventListener('click', () => {
+                spawnConfetti(20);
+                b.style.transform = 'scale(2)';
+                b.style.opacity = '0';
+                b.style.transition = '.3s';
+                setTimeout(() => b.remove(), 400);
+            });
+            setTimeout(() => b.remove(), dur * 1000 + 500);
+        }
+
+        // ============================================================
+        // MUSIC
+        // ============================================================
+        const musicBtn = document.getElementById('music-btn');
+        const bgMusic = document.getElementById('bg-music');
+        let musicPlaying = false;
+
+        async function startMusic() {
+            if (musicPlaying || !bgMusic) return;
+            try {
+                await bgMusic.play();
+                musicPlaying = true;
+                musicBtn.textContent = '🎵';
+            } catch (err) {
+                console.log("Music play blocked or failed:", err);
+            }
+        }
+
+        musicBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // Don't trigger window click
+            if (!bgMusic) return;
+            if (musicPlaying) {
+                bgMusic.pause();
+                musicBtn.textContent = '🔇';
+                musicPlaying = false;
+            } else {
+                startMusic();
+            }
+        });
+
+        // Any touch/click on the document should try to start music if it's not playing
+        window.addEventListener('pointerdown', startMusic, { once: true });
+        window.addEventListener('click', startMusic, { once: true });
+
+        // ============================================================
+        // SCENE INIT
+        // ============================================================
+        function initScene(n) {
+            switch (n) {
+                case 1: scene1(); break;
+                case 2: scene2(); break;
+                case 3: scene3(); break;
+                case 4: scene4(); break;
+                case 5: scene5(); break;
+                case 6: scene6(); break;
+                case 7: scene7(); break;
+                case 8: scene8(); break;
+                case 9: scene9(); break;
+                case 10: scene10(); break;
+                case 11: scene11(); break;
+                case 12: scene12(); break;
+                case 13: scene13(); break;
+                case 14: scene14(); break;
+                case 15: scene15(); break;
+                case 16: scene16(); break;
+                case 17: scene17(); break;
+                case 18: scene18(); break;
+                case 19: scene19(); break;
+                case 20: scene20(); break;
+            }
+        }
+
+        // ============================================================
+        // S1
+        function scene1() { }
+
+        // ============================================================
+        // S2
+        function scene2() {
+            spawnConfetti(40);
+            let bi = 0;
+            const bInt = setInterval(() => { if (current !== 2) { clearInterval(bInt); return; } spawnBalloon(); if (++bi > 8) clearInterval(bInt); }, 600);
+        }
+
+        // ============================================================
+        // S3
+        function scene3() { }
+
+        // ============================================================
+        // S4 — Trait tags
+        function scene4() {
+            const traits = [
+                'Hinata in-game. Terror in real life.',
+                'Calls first. Hangs up last.',
+                'Bad WiFi but great vibes',
+                'Wins in BGMI. Loses arguments never.',
+                'Long distance? Still everywhere.',
+                'Cries at cutscenes. Denies it.',
+                'Too picky. Worth the effort.',
+                'Carries the squad. Refuses credit.',
+                'Video call at 2am? Obviously.',
+                'Somehow looks good on 480p',
+                'The teammate nobody deserves',
+                'Emotionally unavailable. Emotionally irreplaceable.',
+                '2+ years of this chaos',
+                'Still the best thing on my screen'
+            ];
+            const c = document.getElementById('trait-container');
+            c.innerHTML = '';
+            traits.forEach((t, i) => {
+                const el = document.createElement('div');
+                el.className = 'trait-tag'; el.textContent = t; c.appendChild(el);
+                setTimeout(() => el.classList.add('show'), i * 120 + 200);
+            });
+            setTimeout(() => { document.getElementById('s4-next').style.opacity = '1'; }, traits.length * 120 + 600);
+        }
+
+        // ============================================================
+        // S5 — Memory picks
+        const s5Responses = {
+            bgmi: "Hinata drops in, clears the zone, zero comms, maximum damage. Honestly terrifying. Absolutely iconic.",
+            call: "Bad network. Frozen frames. Still the best call of the day. Every time.",
+            fight: "The distance got loud some days. You stayed anyway. That means more than you know.",
+            soft: "No game, no call. Just existing together across the distance. Those are the ones I keep."
+        };
+        function scene5() {
+            document.querySelectorAll('.mem-card').forEach(c => {
+                c.addEventListener('click', () => {
+                    document.querySelectorAll('.mem-card').forEach(x => x.classList.remove('chosen'));
+                    c.classList.add('chosen');
+                    const r = document.getElementById('s5-response');
+                    r.textContent = s5Responses[c.dataset.pick];
+                    r.style.opacity = '1';
+                    setTimeout(() => document.getElementById('s5-next').style.opacity = '1', 600);
+                });
+            });
+        }
+
+        // ============================================================
+        // S6 — Reveal lines
+        function scene6() {
+            const lines = [
+                { t: "Twenty looks like someone who played through every hard level.", c: '' },
+                { t: "Disconnected calls, bad days, miles between — and still here.", c: '' },
+                { t: "That's not luck. That's Hinata.", c: 'rose' },
+                { t: "Twenty looks exactly like her.", c: 'gold' },
+            ];
+            const wrap = document.getElementById('reveal-lines'); wrap.innerHTML = '';
+            lines.forEach((l, i) => {
+                const d = document.createElement('div');
+                d.className = 'reveal-text' + (l.c ? ' ' + l.c : '');
+                d.style.fontFamily = 'var(--ff-serif)'; d.style.fontStyle = 'italic';
+                d.style.fontSize = 'clamp(1.1rem,3vw,1.8rem)'; d.style.lineHeight = '1.6';
+                d.style.textAlign = 'center'; d.style.opacity = '0'; d.style.transition = '.6s';
+                if (l.c === 'rose') d.style.color = 'var(--rose)';
+                if (l.c === 'gold') d.style.color = 'var(--gold)';
+                d.textContent = l.t; wrap.appendChild(d);
+                setTimeout(() => { d.style.opacity = '1'; d.style.transform = 'none'; }, i * 1000 + 400);
+            });
+            setTimeout(() => document.getElementById('s6-next').style.opacity = '1', lines.length * 1000 + 800);
+        }
+
+        // ============================================================
+        // S7 — Things she does
+        function scene7() {
+            const things = [
+                { e: '🎮', t: 'Goes quiet mid-game. Destroys the whole lobby. Says nothing.' },
+                { e: '📱', t: 'Picks up every call. Even the ones at impossible hours.' },
+                { e: '🌧️', t: 'Has a bad day. Doesn\'t say it. You can always tell anyway.' },
+                { e: '😤', t: 'Loses one BGMI round. Takes it personally. Wins the next four.' },
+                { e: '💬', t: 'Types three messages. Deletes two. Sends the one that matters.' },
+                { e: '📞', t: 'Falls asleep on call. Doesn\'t hang up.' },
+                { e: '🎯', t: 'Carries the team. Acts like it was nothing.' },
+            ];
+            const list = document.getElementById('things-list'); list.innerHTML = '';
+            things.forEach((t, i) => {
+                const d = document.createElement('div'); d.className = 'thing-item';
+                d.innerHTML = `<span class="ti-icon">${t.e}</span><span class="ti-text">${t.t}</span>`;
+                list.appendChild(d);
+                setTimeout(() => d.classList.add('show'), i * 300 + 400);
+            });
+            setTimeout(() => document.getElementById('s7-next').style.opacity = '1', things.length * 300 + 800);
+        }
+
+        // ============================================================
+        // S8 — Mystery boxes
+        function scene8() {
+            const secrets = [
+                'You made distance feel smaller than it is.',
+                'Hinata > every other player. No contest.',
+                'The 3am calls were always worth it.',
+                'You\'re the reason I still queue up.',
+                'Bad WiFi could never stop this.',
+                'You\'re the best teammate, on and off the game.',
+                'Every call. Every game. Every fight. Still chose you.',
+                'Itachi & Hinata. Undefeated.'
+            ];
+            const grid = document.getElementById('mystery-grid'); grid.innerHTML = '';
+            secrets.forEach((s, i) => {
+                const b = document.createElement('div'); b.className = 'mystery-box';
+                b.setAttribute('data-secret', s); b.textContent = '🎁';
+                b.addEventListener('click', () => {
+                    if (b.classList.contains('opened')) return;
+                    b.classList.add('opened'); b.textContent = '';
+                    spawnConfetti(15);
+                    if (++mysteryOpened === 8) setTimeout(() => document.getElementById('s8-next').style.opacity = '1', 500);
+                });
+                grid.appendChild(b);
+            });
+        }
+
+        // ============================================================
+        // S9 — 20 Wishes
+        function scene9() {
+            const wishes = [
+                'May the distance stop mattering as much as it used to.',
+                'May every call connect on the first ring.',
+                'May your BGMI rank only go up from here.',
+                'May you always have someone to drop with.',
+                'May the hard days get softer this year.',
+                'May 20 give you something real to celebrate.',
+                'May you know how good you actually are — in-game and out.',
+                'May the bad WiFi days be fewer and far between.',
+                'May you laugh until your stomach hurts at least once a week.',
+                'May someone always be on the other end of the call.',
+                'May you be loved the way you\'ve shown up — fully, loudly, without reservation.',
+                'May Hinata keep terrorising every lobby she enters.',
+                'May you rest when you need to, without guilt.',
+                'May you always know you\'re someone\'s favourite person to queue with.',
+                'May this year be kinder to you than the last.',
+                'May you feel proud of yourself more than you feel doubt.',
+                'May every screen between us feel a little smaller.',
+                'May the good moments start to outweigh everything else.',
+                'May you get everything you\'ve been patient enough to wait for.',
+                'May 20 be the year things finally start to make sense.'
+            ];
+            const list = document.getElementById('wish-list'); list.innerHTML = '';
+            wishes.forEach((w, i) => {
+                const d = document.createElement('div'); d.className = 'wish-item';
+                d.innerHTML = `<span class="wish-num2">${i + 1}</span><span class="wish-text2">${w}</span>`;
+                list.appendChild(d);
+                setTimeout(() => d.classList.add('show'), i * 200 + 400);
+            });
+            setTimeout(() => document.getElementById('s9-next').style.opacity = '1', wishes.length * 200 + 600);
+        }
+
+        // ============================================================
+        // S10 — Compliment spinner
+        const compliments = ['Genuinely stunning.', 'Chronically iconic.', 'Too pretty for this.', 'A walking aesthetic.', 'Dangerous levels of charm.', 'Unfairly magnetic.', 'Soft & powerful.', 'The favourite, always.', 'Built different.', 'Hopelessly loveable.', 'The best kind of trouble.', 'Absolutely radiant.'];
+        function spinCompliment() {
+            const w = document.getElementById('spin-word');
+            const c = compliments[Math.floor(Math.random() * compliments.length)];
+            w.style.opacity = '0'; w.style.transform = 'scale(.8)';
+            setTimeout(() => { w.textContent = c; w.style.opacity = '1'; w.style.transform = 'scale(1)'; w.style.transition = '.3s'; }, 200);
+            spawnConfetti(12);
+            const cnt = document.getElementById('spin-count');
+            spinCount++; cnt.textContent = `${spinCount} compliment${spinCount > 1 ? 's' : ''} delivered.`;
+            if (spinCount >= 5) setTimeout(() => document.getElementById('s10-next').style.opacity = '1', 500);
+        }
+        function scene10() { spinCount = 0; }
+
+        // ============================================================
+        // S11
+        function scene11() {
+            setTimeout(() => document.getElementById('love-letter').classList.add('show'), 500);
+        }
+
+        // ============================================================
+        // S12 — Love grid
+        function scene12() {
+            const loves = [
+                { e: '🎮', t: 'Hinata in-game', d: 'Silent. Lethal. Carries without asking for credit.' },
+                { e: '📞', t: 'Your calls', d: 'Even the ones where nothing gets said. Especially those.' },
+                { e: '😤', t: 'How you fight', d: 'Stubborn. Honest. Never dirty. Always fair, eventually.' },
+                { e: '🌧️', t: 'The hard days', d: 'You stayed through them. That\'s not small.' },
+                { e: '😂', t: 'Your humour', d: 'Only funny over call. Somehow still the funniest.' },
+                { e: '💙', t: 'Two years', d: 'More ups and downs than any game. Still queued in.' },
+            ];
+            const grid = document.getElementById('love-grid'); grid.innerHTML = '';
+            loves.forEach((l, i) => {
+                const d = document.createElement('div'); d.className = 'love-item';
+                d.innerHTML = `<div class="li-icon">${l.e}</div><div class="li-title">${l.t}</div><div class="li-desc">${l.d}</div>`;
+                grid.appendChild(d);
+                setTimeout(() => d.classList.add('show'), i * 250 + 400);
+            });
+            setTimeout(() => document.getElementById('s12-next').style.opacity = '1', loves.length * 250 + 600);
+        }
+
+        // ============================================================
+        // S13 — Vibe picker
+        const vibes = [
+            { l: 'Hinata mode: full send', r: '"Drops in silent. Wins loud. Zero explanation."' },
+            { l: '3am call energy', r: '"Sleepy, soft, completely herself. The real version."' },
+            { l: 'Carrying the whole relationship', r: '"Always showing up. Always the glue. Somehow still standing."' },
+            { l: 'Too far but still here', r: '"Distance is a fact. Presence is a choice. She keeps choosing."' },
+            { l: 'Paru being iconic', r: '"She exists. People notice. That\'s just how it is."' },
+        ];
+        function scene13() {
+            const grid = document.getElementById('vibe-grid'); grid.innerHTML = '';
+            vibes.forEach(v => {
+                const b = document.createElement('button'); b.className = 'vibe-btn'; b.textContent = v.l;
+                b.addEventListener('click', () => {
+                    document.querySelectorAll('.vibe-btn').forEach(x => x.classList.remove('picked'));
+                    b.classList.add('picked');
+                    const r = document.getElementById('vibe-result');
+                    r.textContent = v.r; r.classList.add('show');
+                    setTimeout(() => document.getElementById('s13-next').style.opacity = '1', 500);
+                });
+                grid.appendChild(b);
+            });
+        }
+
+        // ============================================================
+        // S14 — Candle ceremony
+        function scene14() {
+            const row = document.getElementById('candle-row'); row.innerHTML = '';
+            for (let i = 0; i < 20; i++) {
+                const c = document.createElement('div'); c.className = 'candle';
+                const f = document.createElement('div'); f.className = 'flame'; f.id = 'fl-' + i;
+                c.appendChild(f); row.appendChild(c);
+            }
+            candlesLit = false;
+            document.getElementById('light-btn').style.opacity = '1';
+            document.getElementById('light-btn').style.display = '';
+        }
+        function lightCandles() {
+            if (candlesLit) return;
+            candlesLit = true;
+            document.getElementById('light-btn').style.opacity = '0';
+            document.getElementById('light-btn').style.pointerEvents = 'none';
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => document.getElementById('fl-' + i).classList.add('lit'), i * 120);
+            }
+            spawnConfetti(50);
+            let bi = 0;
+            const bInt = setInterval(() => { spawnBalloon(); if (++bi > 10) clearInterval(bInt); }, 400);
+            const msg = document.getElementById('cake-msg');
+            setTimeout(() => { msg.textContent = 'Happy 20th, Paru 🎂'; msg.style.opacity = '1'; }, 2600);
+            setTimeout(() => document.getElementById('s14-next').style.opacity = '1', 4000);
+        }
+
+        // ============================================================
+        // S15 — 20 Reasons
+        function scene15() {
+            const reasons = [
+                'You picked up every call, even the inconvenient ones.',
+                'You play BGMI like it owes you something.',
+                'You stayed through the hard patches that most people don\'t.',
+                'You\'re honest, even when it would\'ve been easier not to be.',
+                'You make distance feel like a minor inconvenience.',
+                'You remember the things that matter to people.',
+                'Hinata is genuinely one of the best in any lobby.',
+                'You have a laugh that travels just fine over bad audio.',
+                'You showed up on a screen and made it feel like the same room.',
+                'You fight fair. Even when you\'re furious.',
+                'You fell asleep on call and didn\'t hang up. Multiple times.',
+                'You are the reason late nights felt worth staying up for.',
+                'You carry quietly. You celebrate quietly. You love loudly.',
+                'You never made the distance an excuse.',
+                'You are irreplaceable in a lobby and out of it.',
+                'Two years is a long time to keep choosing someone. You did.',
+                'You are exactly as good as you think you are on your best days.',
+                'You made a video call feel like home.',
+                'You are someone worth every dropped connection and rescheduled call.',
+                'Itachi and Hinata. Undefeated. Still in the game.'
+            ];
+            const wrap = document.getElementById('reasons-wrap'); wrap.innerHTML = '';
+            reasons.forEach((r, i) => {
+                const d = document.createElement('div'); d.className = 'reason-item';
+                d.innerHTML = `<span class="reason-num">${i + 1}</span><span class="reason-txt">${r}</span>`;
+                wrap.appendChild(d);
+                setTimeout(() => d.classList.add('show'), i * 180 + 400);
+            });
+            setTimeout(() => document.getElementById('s15-next').style.opacity = '1', reasons.length * 180 + 600);
+        }
+
+        // ============================================================
+        // S16 — Memory Unlock
+        function scene16() {
+            const memories = [
+                { l: 'That one 3am call', m: 'The one where neither of us wanted to hang up. Even when the signal died.' },
+                { l: 'First game together', m: 'Hinata dropped solo, wiped a squad, and Itachi just watched in awe.' },
+                { l: 'The hard days', m: 'Distance got loud, things got messy, but you stayed. That\'s my favorite memory.' },
+                { l: 'Falling asleep on call', m: 'Listening to you breathe through a screen. Pure peace.' },
+                { l: 'First real fight', m: 'We survived it. It proved we were real.' },
+                { l: '2 years of chaos', m: 'Every single laggy second has been worth it.' }
+            ];
+            const grid = document.getElementById('memory-unlock-grid'); grid.innerHTML = '';
+            let unlockedCount = 0;
+            memories.forEach((m, i) => {
+                const b = document.createElement('div'); b.className = 'photo-slot';
+                b.style.opacity = '1'; b.style.cursor = 'pointer'; b.style.borderStyle = 'solid';
+                b.innerHTML = `<div class="ph-icon">🔒</div><div style="font-size:.7rem;padding:0 5px;">${m.l}</div>`;
+                b.addEventListener('click', () => {
+                    if (b.classList.contains('unlocked')) return;
+                    b.classList.add('unlocked');
+                    b.style.borderColor = 'var(--rose)';
+                    b.innerHTML = `<div style="font-size:.8rem;font-style:italic;padding:10px;">"${m.m}"</div>`;
+                    spawnConfetti(15);
+                    unlockedCount++;
+                    if (unlockedCount >= 3) document.getElementById('s16-next').style.opacity = '1';
+                });
+                grid.appendChild(b);
+            });
+        }
+
+        // ============================================================
+        // S17 — Timeline
+        function scene17() {
+            const events = [
+                { y: 'Day 1', t: 'First call. Terrible signal. Stayed on anyway.' },
+                { y: 'Early on', t: 'First BGMI game together. Hinata dropped solo and won. Itachi watched in silence.' },
+                { y: 'A while in', t: 'First real fight. Survived it. Came back stronger.' },
+                { y: 'Then', t: 'Started falling asleep on call. Neither hung up first.' },
+                { y: 'Somewhere', t: 'Distance got loud. Chose each other anyway.' },
+                { y: 'Recently', t: 'Two years deep. Still queuing. Still calling. Still here.' },
+                { y: 'Today', t: 'She turns 20. And the story is nowhere near done.' },
+            ];
+            const tl = document.getElementById('timeline'); tl.innerHTML = '';
+            events.forEach((e, i) => {
+                const d = document.createElement('div'); d.className = 'tl-item';
+                d.innerHTML = `<div class="tl-dot"></div><div class="tl-content"><div class="tl-year">${e.y}</div><div class="tl-text">${e.t}</div></div>`;
+                tl.appendChild(d);
+                setTimeout(() => d.classList.add('show'), i * 400 + 400);
+            });
+            setTimeout(() => document.getElementById('s17-next').style.opacity = '1', events.length * 400 + 600);
+        }
+
+        // ============================================================
+        // S18
+        function scene18() { }
+
+        // ============================================================
+        // S19
+        function scene19() { }
+
+        // ============================================================
+        // S20 — Finale
+        function scene20() {
+            spawnConfetti(100);
+            let bi = 0;
+            const bInt = setInterval(() => { spawnBalloon(); if (++bi > 20) clearInterval(bInt); }, 300);
+        }
+
+        function launchFireworks() {
+            for (let i = 0; i < 5; i++) setTimeout(() => spawnConfetti(80), i * 300);
+        }
+
+        // ============================================================
+        // START
+        // ============================================================
+        goTo(1);
+    </script>
+</body>
+
+</html>
