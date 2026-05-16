@@ -344,11 +344,11 @@
         }
 
         /* ===== SCENE 1 — VIDEO INTRO (16:9) ===== */
-        #s1 {
+        #s2 {
             background: #000;
         }
 
-        #s1 .video-wrap {
+        #s2 .video-wrap {
             width: min(90vw, 960px);
             aspect-ratio: 16/9;
             background: #111;
@@ -361,7 +361,7 @@
             justify-content: center;
         }
 
-        #s1 .video-placeholder {
+        #s2 .video-placeholder {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -371,11 +371,11 @@
             padding: 20px;
         }
 
-        #s1 .video-placeholder .icon {
+        #s2 .video-placeholder .icon {
             font-size: 3rem;
         }
 
-        #s1 .skip-hint {
+        #s2 .skip-hint {
             margin-top: 20px;
             font-size: .85rem;
             opacity: .4;
@@ -451,29 +451,29 @@
             transition: opacity .5s, transform .5s;
         }
 
-        #s3 .card.visible {
+        #s4 .card.visible {
             opacity: 1;
             transform: none;
         }
 
-        #s3 .card:nth-child(1) {
+        #s4 .card:nth-child(1) {
             background: linear-gradient(135deg, #3a0e20, #6e2a8a);
         }
 
-        #s3 .card:nth-child(2) {
+        #s4 .card:nth-child(2) {
             background: linear-gradient(135deg, #1a0c2e, #2d0a1c);
         }
 
-        #s3 .card:nth-child(3) {
+        #s4 .card:nth-child(3) {
             background: linear-gradient(135deg, #0d2b2a, #0d0508);
         }
 
         /* ===== SCENE 4 — WHO IS PARU ===== */
-        #s4 {
+        #s5 {
             background: var(--dark);
         }
 
-        #s4 .trait-container {
+        #s5 .trait-container {
             display: flex;
             flex-wrap: wrap;
             gap: 12px;
@@ -1298,7 +1298,9 @@
             max-width: 440px;
             text-align: center;
             font-size: clamp(.85rem, 2vw, 1rem);
-            opacity: .6;
+            line-height: 1.6;
+            margin-top: 20px;
+
             line-height: 1.7;
             margin-top: 16px;
         }
@@ -1322,15 +1324,15 @@
                 padding: 24px;
             }
 
-            #s8 .mystery-grid {
+            #s9 .mystery-grid {
                 grid-template-columns: repeat(3, 1fr);
             }
 
-            #s12 .love-grid {
+            #s13 .love-grid {
                 grid-template-columns: 1fr;
             }
 
-            #s16 .photo-grid {
+            #s17 .photo-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
 
@@ -1343,6 +1345,17 @@
 </head>
 
 <body>
+
+    <!-- Countdown Overlay -->
+    <div id="countdown-overlay"
+        style="display:none; position:fixed; inset:0; z-index:10000; background:var(--dark); align-items:center; justify-content:center; flex-direction:column; gap:20px; opacity:0; transition:opacity 0.5s ease;">
+        <div id="countdown-number"
+            style="font-family:var(--ff-display); font-size:12rem; color:var(--rose); text-shadow:0 0 30px var(--rose); transition: transform 0.1s ease;">
+            5</div>
+        <div
+            style="font-family:var(--ff-serif); font-style:italic; opacity:.5; letter-spacing:.2em; text-transform:uppercase;">
+            Get Ready, Paru...</div>
+    </div>
 
     <!-- Music Bar -->
     <div id="music-bar">
@@ -1360,16 +1373,37 @@
     <div id="progress" id="progress-dots"></div>
 
     <!-- ============================================================ -->
-    <!-- SCENE 1 — 16:9 Intro Video -->
+    <!-- SCENE 1 — Photo + Welcome + Countdown -->
     <!-- ============================================================ -->
-    <section class="scene" id="s1">
-        <div style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:20px;z-index:10;">
-            <div class="body-sm" style="letter-spacing:.2em;text-transform:uppercase;opacity:.4;">A Birthday Story</div>
-            <div class="video-wrap" id="s1-video">
+    <section class="scene active" id="s1">
+        <div
+            style="text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;z-index:10;width:100%;max-width:500px;margin:auto;">
+            <div class="video-wrap"
+                style="width:min(90vw, 480px); aspect-ratio:16/9; background:#111; border-radius:16px; overflow:hidden; border:2px solid rgba(255,255,255,.1); position:relative; box-shadow:0 10px 40px rgba(0,0,0,0.5);">
                 <img src="start.png" alt="Birthday Start"
                     style="width:100%; height:100%; object-fit:cover; position:absolute; inset:0;">
             </div>
-            <div class="skip-hint">tap anywhere to begin her story →</div>
+            <div style="padding:0 20px;">
+                <div class="display" style="font-size:clamp(1.8rem,8vw,2.8rem); line-height:1.1; margin-bottom:12px;">A
+                    Birthday Story<br>for Paru</div>
+                <div class="body-sm" style="opacity:.6; max-width:300px; margin:0 auto;">Turn your sound up and open the
+                    gift below to begin your story.</div>
+            </div>
+            <div id="s1-controls" style="margin-top:10px;">
+                <button class="btn btn-rose"
+                    style="padding:18px 40px; font-size:1.1rem; box-shadow:0 10px 25px rgba(232, 67, 106, 0.3);"
+                    onclick="startCountdown()">Open the Story →</button>
+            </div>
+            <!-- Integrated Countdown -->
+            <div id="s1-countdown"
+                style="display:none; flex-direction:column; align-items:center; gap:10px; min-height:120px; justify-content:center;">
+                <div id="s1-countdown-num"
+                    style="font-family:var(--ff-display); font-size:6rem; color:var(--rose); text-shadow:0 0 30px var(--rose); line-height:1;">
+                    5</div>
+                <div class="body-sm"
+                    style="letter-spacing:.3em; text-transform:uppercase; opacity:.6; font-size:0.8rem;">Get Ready...
+                </div>
+            </div>
         </div>
     </section>
 
@@ -1415,7 +1449,7 @@
         <div
             style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:24px;z-index:10;max-width:700px;width:100%;">
             <div class="scene-label">Chapter II</div>
-            <div class="display scene-title">So. <em>Who</em> is Paru?</div>
+            <div class="display scene-title">So. <em>Who</em> are you?</div>
             <div class="trait-container" id="trait-container">
                 <!-- injected by JS -->
             </div>
@@ -1433,7 +1467,7 @@
             style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:24px;z-index:10;max-width:560px;width:100%;">
             <div class="scene-label">Chapter III</div>
             <div class="display scene-title">Pick a feeling.</div>
-            <div class="body-sm" style="margin-top:-16px;">What's her energy today?</div>
+            <div class="body-sm" style="margin-top:-16px;">What's your energy today?</div>
             <div class="memory-grid" id="memory-grid">
                 <div class="mem-card" data-pick="bgmi">
                     <span class="em">🎮</span><span class="lbl">BGMI Hinata mode</span>
@@ -1464,7 +1498,7 @@
         <div
             style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:28px;z-index:10;max-width:700px;width:100%;">
             <div class="scene-label">Chapter IV</div>
-            <div class="display scene-title">What 20 looks like on her.</div>
+            <div class="display scene-title">What 20 looks like on you.</div>
             <div id="reveal-lines" style="display:flex;flex-direction:column;gap:18px;"></div>
             <div id="s6-next" style="opacity:0;transition:.5s;margin-top:8px;">
                 <button class="btn btn-gold" style="color:#000;" onclick="next()">This is too real →</button>
@@ -1786,10 +1820,55 @@
         function next() { goTo(current + 1); }
         function restart() { location.reload(); }
 
-        // Click scene-1 to advance
-        document.getElementById('s1').addEventListener('click', () => {
-            if (current === 1) next();
-        });
+        // Click scene-1 to advance with countdown
+        let countdownStarted = false;
+        const s1 = document.getElementById('s1');
+        if (s1) {
+            s1.addEventListener('click', (e) => {
+                // If they clicked the button specifically, startCountdown is already called via onclick
+                // But if they clicked anywhere else on s1, we trigger it too
+                if (current === 1 && !countdownStarted) {
+                    countdownStarted = true;
+                    startCountdown();
+                }
+            });
+        }
+
+        function startCountdown() {
+            const controls = document.getElementById('s1-controls');
+            const countdown = document.getElementById('s1-countdown');
+            const num = document.getElementById('s1-countdown-num');
+
+            // Start Music on first interaction
+            if (!musicPlaying) {
+                bgMusic.play().catch(e => console.log("Audio blocked", e));
+                musicPlaying = true;
+                musicBtn.textContent = '🔊';
+            }
+
+            // UI Switch
+            controls.style.display = 'none';
+            countdown.style.display = 'flex';
+
+            let count = 5;
+            num.textContent = count;
+
+            const timer = setInterval(() => {
+                count--;
+                if (count > 0) {
+                    num.textContent = count;
+                    num.style.transform = 'scale(1.2)';
+                    setTimeout(() => num.style.transform = 'scale(1)', 100);
+                } else {
+                    clearInterval(timer);
+                    num.textContent = "Go!";
+                    setTimeout(() => {
+                        // Go to Scene 2 (Finally 20)
+                        next();
+                    }, 600);
+                }
+            }, 1000);
+        }
 
         // ============================================================
         // CONFETTI ENGINE
@@ -1999,7 +2078,7 @@
                 { t: "Twenty looks like someone who played through every hard level.", c: '' },
                 { t: "Disconnected calls, bad days, miles between — and still here.", c: '' },
                 { t: "That's not luck. That's Hinata.", c: 'rose' },
-                { t: "Twenty looks exactly like her.", c: 'gold' },
+                { t: "Twenty looks exactly like you.", c: 'gold' },
             ];
             const wrap = document.getElementById('reveal-lines'); wrap.innerHTML = '';
             lines.forEach((l, i) => {
@@ -2019,28 +2098,40 @@
         // ============================================================
         // S7 — Things she does
         function scene7() {
-            const things = [
-                { e: '🎮', t: 'Goes quiet mid-game. Destroys the whole lobby. Says nothing.' },
-                { e: '📱', t: 'Picks up every call. Even the ones at impossible hours.' },
-                { e: '🌧️', t: 'Has a bad day. Doesn\'t say it. You can always tell anyway.' },
-                { e: '😤', t: 'Loses one BGMI round. Takes it personally. Wins the next four.' },
-                { e: '💬', t: 'Types three messages. Deletes two. Sends the one that matters.' },
-                { e: '📞', t: 'Falls asleep on call. Doesn\'t hang up.' },
-                { e: '🎯', t: 'Carries the team. Acts like it was nothing.' },
+            const list = document.getElementById('things-list'); if (!list) return;
+            list.innerHTML = '';
+            const items = [
+                "The way you say 'Hina' in that specific tone.",
+                "Your ability to ignore my calls when you're gaming.",
+                "The 3am rants about literally everything.",
+                "Your zero-patience policy for stupid people.",
+                "How you look at me like I'm the one who's crazy.",
+                "The way you refuse to admit when you're wrong.",
+                "Your habit of falling asleep mid-conversation.",
+                "The chaotic energy you bring to every group chat.",
+                "Your surprisingly soft heart (don't deny it).",
+                "How you're literally the only person I want to talk to."
             ];
-            const list = document.getElementById('things-list'); list.innerHTML = '';
-            things.forEach((t, i) => {
-                const d = document.createElement('div'); d.className = 'thing-item';
-                d.innerHTML = `<span class="ti-icon">${t.e}</span><span class="ti-text">${t.t}</span>`;
-                list.appendChild(d);
-                setTimeout(() => d.classList.add('show'), i * 300 + 400);
+            items.forEach((txt, i) => {
+                const el = document.createElement('div'); el.className = 'wish-item';
+                el.style.borderLeft = '3px solid var(--rose)';
+                el.style.opacity = '0'; el.style.padding = '12px 18px';
+                el.textContent = txt; list.appendChild(el);
+                setTimeout(() => {
+                    el.style.opacity = '1';
+                    el.style.transform = 'none';
+                }, i * 150 + 300);
             });
-            setTimeout(() => document.getElementById('s7-next').style.opacity = '1', things.length * 300 + 800);
+            setTimeout(() => {
+                const btn = document.getElementById('s7-next');
+                if (btn) btn.style.opacity = '1';
+            }, items.length * 150 + 600);
         }
 
         // ============================================================
         // S8 — Mystery boxes
         function scene8() {
+            mysteryOpened = 0;
             const secrets = [
                 'You made distance feel smaller than it is.',
                 'Hinata > every other player. No contest.',
@@ -2051,7 +2142,8 @@
                 'Every call. Every game. Every fight. Still chose you.',
                 'Itachi & Hinata. Undefeated.'
             ];
-            const grid = document.getElementById('mystery-grid'); grid.innerHTML = '';
+            const grid = document.getElementById('mystery-grid'); if (!grid) return;
+            grid.innerHTML = '';
             secrets.forEach((s, i) => {
                 const b = document.createElement('div'); b.className = 'mystery-box';
                 b.setAttribute('data-secret', s); b.textContent = '🎁';
@@ -2059,7 +2151,11 @@
                     if (b.classList.contains('opened')) return;
                     b.classList.add('opened'); b.textContent = '';
                     spawnConfetti(15);
-                    if (++mysteryOpened === 8) setTimeout(() => document.getElementById('s8-next').style.opacity = '1', 500);
+                    mysteryOpened++;
+                    if (mysteryOpened === 8) {
+                        const btn = document.getElementById('s8-next');
+                        if (btn) setTimeout(() => btn.style.opacity = '1', 500);
+                    }
                 });
                 grid.appendChild(b);
             });
@@ -2090,18 +2186,22 @@
                 'May you get everything you\'ve been patient enough to wait for.',
                 'May 20 be the year things finally start to make sense.'
             ];
-            const list = document.getElementById('wish-list'); list.innerHTML = '';
+            const list = document.getElementById('wish-list'); if (!list) return;
+            list.innerHTML = '';
             wishes.forEach((w, i) => {
                 const d = document.createElement('div'); d.className = 'wish-item';
                 d.innerHTML = `<span class="wish-num2">${i + 1}</span><span class="wish-text2">${w}</span>`;
                 list.appendChild(d);
                 setTimeout(() => d.classList.add('show'), i * 200 + 400);
             });
-            setTimeout(() => document.getElementById('s9-next').style.opacity = '1', wishes.length * 200 + 600);
+            setTimeout(() => {
+                const btn = document.getElementById('s9-next');
+                if (btn) btn.style.opacity = '1';
+            }, wishes.length * 200 + 600);
         }
 
         // ============================================================
-        // S10 — Compliment spinner
+        // S10 — Spinner
         const compliments = ['Genuinely stunning.', 'Chronically iconic.', 'Too pretty for this.', 'A walking aesthetic.', 'Dangerous levels of charm.', 'Unfairly magnetic.', 'Soft & powerful.', 'The favourite, always.', 'Built different.', 'Hopelessly loveable.', 'The best kind of trouble.', 'Absolutely radiant.'];
         function spinCompliment() {
             const w = document.getElementById('spin-word');
@@ -2109,16 +2209,21 @@
             w.style.opacity = '0'; w.style.transform = 'scale(.8)';
             setTimeout(() => { w.textContent = c; w.style.opacity = '1'; w.style.transform = 'scale(1)'; w.style.transition = '.3s'; }, 200);
             spawnConfetti(12);
+            spinCount++;
             const cnt = document.getElementById('spin-count');
-            spinCount++; cnt.textContent = `${spinCount} compliment${spinCount > 1 ? 's' : ''} delivered.`;
-            if (spinCount >= 5) setTimeout(() => document.getElementById('s10-next').style.opacity = '1', 500);
+            if (cnt) cnt.textContent = `${spinCount} compliment${spinCount > 1 ? 's' : ''} delivered.`;
+            if (spinCount >= 5) {
+                const btn = document.getElementById('s10-next');
+                if (btn) setTimeout(() => btn.style.opacity = '1', 500);
+            }
         }
         function scene10() { spinCount = 0; }
 
         // ============================================================
-        // S11
+        // S11 — Letter
         function scene11() {
-            setTimeout(() => document.getElementById('love-letter').classList.add('show'), 500);
+            const l = document.getElementById('love-letter');
+            if (l) setTimeout(() => l.classList.add('show'), 500);
         }
 
         // ============================================================
@@ -2132,14 +2237,19 @@
                 { e: '😂', t: 'Your humour', d: 'Only funny over call. Somehow still the funniest.' },
                 { e: '💙', t: 'Two years', d: 'More ups and downs than any game. Still queued in.' },
             ];
-            const grid = document.getElementById('love-grid'); grid.innerHTML = '';
+            const grid = document.getElementById('love-grid');
+            if (!grid) return;
+            grid.innerHTML = '';
             loves.forEach((l, i) => {
                 const d = document.createElement('div'); d.className = 'love-item';
                 d.innerHTML = `<div class="li-icon">${l.e}</div><div class="li-title">${l.t}</div><div class="li-desc">${l.d}</div>`;
                 grid.appendChild(d);
                 setTimeout(() => d.classList.add('show'), i * 250 + 400);
             });
-            setTimeout(() => document.getElementById('s12-next').style.opacity = '1', loves.length * 250 + 600);
+            setTimeout(() => {
+                const btn = document.getElementById('s12-next');
+                if (btn) btn.style.opacity = '1';
+            }, loves.length * 250 + 600);
         }
 
         // ============================================================
@@ -2152,15 +2262,20 @@
             { l: 'Paru being iconic', r: '"She exists. People notice. That\'s just how it is."' },
         ];
         function scene13() {
-            const grid = document.getElementById('vibe-grid'); grid.innerHTML = '';
+            const grid = document.getElementById('vibe-grid');
+            if (!grid) return;
+            grid.innerHTML = '';
             vibes.forEach(v => {
                 const b = document.createElement('button'); b.className = 'vibe-btn'; b.textContent = v.l;
                 b.addEventListener('click', () => {
                     document.querySelectorAll('.vibe-btn').forEach(x => x.classList.remove('picked'));
                     b.classList.add('picked');
                     const r = document.getElementById('vibe-result');
-                    r.textContent = v.r; r.classList.add('show');
-                    setTimeout(() => document.getElementById('s13-next').style.opacity = '1', 500);
+                    if (r) {
+                        r.textContent = v.r; r.classList.add('show');
+                    }
+                    const btn = document.getElementById('s13-next');
+                    if (btn) setTimeout(() => btn.style.opacity = '1', 500);
                 });
                 grid.appendChild(b);
             });
@@ -2169,30 +2284,45 @@
         // ============================================================
         // S14 — Candle ceremony
         function scene14() {
-            const row = document.getElementById('candle-row'); row.innerHTML = '';
+            const row = document.getElementById('candle-row');
+            if (!row) return;
+            row.innerHTML = '';
             for (let i = 0; i < 20; i++) {
                 const c = document.createElement('div'); c.className = 'candle';
                 const f = document.createElement('div'); f.className = 'flame'; f.id = 'fl-' + i;
                 c.appendChild(f); row.appendChild(c);
             }
             candlesLit = false;
-            document.getElementById('light-btn').style.opacity = '1';
-            document.getElementById('light-btn').style.display = '';
+            const btn = document.getElementById('light-btn');
+            if (btn) {
+                btn.style.opacity = '1';
+                btn.style.display = 'inline-block';
+                btn.style.pointerEvents = 'auto';
+            }
         }
         function lightCandles() {
             if (candlesLit) return;
             candlesLit = true;
-            document.getElementById('light-btn').style.opacity = '0';
-            document.getElementById('light-btn').style.pointerEvents = 'none';
+            const btn = document.getElementById('light-btn');
+            if (btn) {
+                btn.style.opacity = '0';
+                btn.style.pointerEvents = 'none';
+            }
             for (let i = 0; i < 20; i++) {
-                setTimeout(() => document.getElementById('fl-' + i).classList.add('lit'), i * 120);
+                setTimeout(() => {
+                    const fl = document.getElementById('fl-' + i);
+                    if (fl) fl.classList.add('lit');
+                }, i * 120);
             }
             spawnConfetti(50);
             let bi = 0;
             const bInt = setInterval(() => { spawnBalloon(); if (++bi > 10) clearInterval(bInt); }, 400);
             const msg = document.getElementById('cake-msg');
-            setTimeout(() => { msg.textContent = 'Happy 20th, Paru 🎂'; msg.style.opacity = '1'; }, 2600);
-            setTimeout(() => document.getElementById('s14-next').style.opacity = '1', 4000);
+            if (msg) {
+                setTimeout(() => { msg.textContent = 'Happy 20th, Paru 🎂'; msg.style.opacity = '1'; }, 2600);
+            }
+            const nextBtn = document.getElementById('s14-next');
+            if (nextBtn) setTimeout(() => nextBtn.style.opacity = '1', 4000);
         }
 
         // ============================================================
@@ -2220,18 +2350,23 @@
                 'You are someone worth every dropped connection and rescheduled call.',
                 'Itachi and Hinata. Undefeated. Still in the game.'
             ];
-            const wrap = document.getElementById('reasons-wrap'); wrap.innerHTML = '';
+            const wrap = document.getElementById('reasons-wrap');
+            if (!wrap) return;
+            wrap.innerHTML = '';
             reasons.forEach((r, i) => {
                 const d = document.createElement('div'); d.className = 'reason-item';
                 d.innerHTML = `<span class="reason-num">${i + 1}</span><span class="reason-txt">${r}</span>`;
                 wrap.appendChild(d);
                 setTimeout(() => d.classList.add('show'), i * 180 + 400);
             });
-            setTimeout(() => document.getElementById('s15-next').style.opacity = '1', reasons.length * 180 + 600);
+            setTimeout(() => {
+                const btn = document.getElementById('s15-next');
+                if (btn) btn.style.opacity = '1';
+            }, reasons.length * 180 + 600);
         }
 
         // ============================================================
-        // S16 — Memory Unlock
+        // S16 — Memory Unlock (Photo Grid)
         function scene16() {
             const memories = [
                 { l: 'That one 3am call', m: 'The one where neither of us wanted to hang up. Even when the signal died.' },
@@ -2241,7 +2376,9 @@
                 { l: 'First real fight', m: 'We survived it. It proved we were real.' },
                 { l: '2 years of chaos', m: 'Every single laggy second has been worth it.' }
             ];
-            const grid = document.getElementById('memory-unlock-grid'); grid.innerHTML = '';
+            const grid = document.getElementById('memory-unlock-grid');
+            if (!grid) return;
+            grid.innerHTML = '';
             let unlockedCount = 0;
             memories.forEach((m, i) => {
                 const b = document.createElement('div'); b.className = 'photo-slot';
@@ -2254,7 +2391,10 @@
                     b.innerHTML = `<div style="font-size:.8rem;font-style:italic;padding:10px;">"${m.m}"</div>`;
                     spawnConfetti(15);
                     unlockedCount++;
-                    if (unlockedCount >= 3) document.getElementById('s16-next').style.opacity = '1';
+                    if (unlockedCount >= 3) {
+                        const btn = document.getElementById('s16-next');
+                        if (btn) btn.style.opacity = '1';
+                    }
                 });
                 grid.appendChild(b);
             });
@@ -2272,22 +2412,27 @@
                 { y: 'Recently', t: 'Two years deep. Still queuing. Still calling. Still here.' },
                 { y: 'Today', t: 'She turns 20. And the story is nowhere near done.' },
             ];
-            const tl = document.getElementById('timeline'); tl.innerHTML = '';
+            const tl = document.getElementById('timeline');
+            if (!tl) return;
+            tl.innerHTML = '';
             events.forEach((e, i) => {
                 const d = document.createElement('div'); d.className = 'tl-item';
                 d.innerHTML = `<div class="tl-dot"></div><div class="tl-content"><div class="tl-year">${e.y}</div><div class="tl-text">${e.t}</div></div>`;
                 tl.appendChild(d);
                 setTimeout(() => d.classList.add('show'), i * 400 + 400);
             });
-            setTimeout(() => document.getElementById('s17-next').style.opacity = '1', events.length * 400 + 600);
+            setTimeout(() => {
+                const btn = document.getElementById('s17-next');
+                if (btn) btn.style.opacity = '1';
+            }, events.length * 400 + 600);
         }
 
         // ============================================================
-        // S18
+        // S18 — Final Flirt
         function scene18() { }
 
         // ============================================================
-        // S19
+        // S19 — Video Slot
         function scene19() { }
 
         // ============================================================
@@ -2295,7 +2440,7 @@
         function scene20() {
             spawnConfetti(100);
             let bi = 0;
-            const bInt = setInterval(() => { spawnBalloon(); if (++bi > 20) clearInterval(bInt); }, 300);
+            const bInt = setInterval(() => { if (current !== 20) { clearInterval(bInt); return; } spawnBalloon(); if (++bi > 20) clearInterval(bInt); }, 300);
         }
 
         function launchFireworks() {
@@ -2303,9 +2448,24 @@
         }
 
         // ============================================================
-        // START
+        // RESTART
         // ============================================================
-        goTo(1);
+        function restart() {
+            current = 1;
+            mysteryOpened = 0;
+            spinCount = 0;
+            candlesLit = false;
+            document.querySelectorAll('.scene').forEach(s => s.classList.remove('active'));
+            document.getElementById('s1').classList.add('active');
+            document.getElementById('s1-controls').style.display = 'block';
+            document.getElementById('s1-countdown').style.display = 'none';
+            document.getElementById('s1-countdown-num').textContent = '5';
+            updateDots(1);
+            initScene(1);
+        }
+
+        updateDots(1);
+        initScene(1);
     </script>
 </body>
 
